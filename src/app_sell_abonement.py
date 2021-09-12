@@ -105,10 +105,10 @@ class AppSellAbonement(QtWidgets.QWidget):
         self.ui.dateEdit.setDate(datetime.date.today() + datetime.timedelta(days=1))
         self.ui.dateEdit.setMinimumDate(datetime.date.today() + datetime.timedelta(days=1))
         self.ui.dateEdit.setCalendarPopup(True)
-        self.ui.AbonementIdSpinBox.setMinimum(1)
-        self.ui.AbonementIdSpinBox.setMaximum(len(self.abonements))
+        self.ui.abonementIdSpinBox.setMinimum(1)
+        self.ui.abonementIdSpinBox.setMaximum(len(self.abonements))
         self.ui.oneDayCheckBox.stateChanged.connect(self.check_box_slot)
-        self.ui.AbonementIdSpinBox.valueChanged.connect(self.spin_box_slot)
+        self.ui.abonementIdSpinBox.valueChanged.connect(self.spin_box_slot)
         self.ui.dateEdit.dateChanged.connect(self.date_slot)
         self.ui.sellButton.clicked.connect(self.btn_slot)
 
