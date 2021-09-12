@@ -33,7 +33,7 @@ class AppRoomsCapacity(QtWidgets.QWidget):
                 cellinfo.setTextAlignment(QtCore.Qt.AlignCenter)
                 # read only
                 cellinfo.setFlags(
-                    QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+                    QtCore.Qt.ItemIsEnabled
                 )
                 self.ui.table.setItem(rownum, colnum, cellinfo)
                 colnum += 1

@@ -46,7 +46,7 @@ def db_sell_abonement(abonement_id, date_end):
         room = cur.fetchone()
         if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
             return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],
-                                                                        room['TimeName']))
+                                                                        room['TimeName'].lower()))
         # After checking, we need to insert new order row
         cur.execute('INSERT INTO Orders (AbonementId, OrderDateStart, OrderDateEnd) '
                     'VALUES ({}, CURDATE(), STR_TO_DATE("{}", "%d.%m.%Y"))'.format(abonement_id,
@@ -66,13 +66,64 @@ def db_sell_abonement(abonement_id, date_end):
 
 
 def db_sell_oneday(abonement_id):
-    is_ok = True
-    msg = ''
-    (is_ok, msg) = db_sell_abonement(abonement_id, datetime.date.strftime(datetime.date.today(), '%d.%m.%Y'))
-    if not is_ok:
-        return (False, msg)
-    else:
-        return (True, msg)
+    # Connect to the local MySQL 'Fitness' db
+    con = pymysql.connect(host='127.0.0.1',
+                          user='root',
+                          password='gpnb0b',
+                          db='Fitness',
+                          charset='utf8mb4',
+                          cursorclass=pymysql.cursors.DictCursor)
+
+    with con:
+        cur = con.cursor()
+        # We need to check if there is such abonement_id
+        cur.execute('SELECT * FROM Abonements WHERE AbonementId = {}'.format(abonement_id))
+        temp = cur.fetchall()
+        if len(temp) == 0:
+            return (False, 'Нет абонемента с указанным Id!')
+        # Check for free spaces in room
+        cur.execute('SELECT * FROM Abonements WHERE AbonementId = {}'.format(abonement_id))
+        abonement = cur.fetchone()
+        cur.execute('SELECT COUNT(*) '
+                    'FROM Orders '
+                    'INNER JOIN Abonements on Abonements.AbonementId = Orders.AbonementId '
+                    'INNER JOIN Rooms on Rooms.RoomId = Abonements.RoomId '
+                    'INNER JOIN Services on Services.ServiceId = Abonements.ServiceId '
+                    'INNER JOIN Times on Times.TimeId = Abonements.TimeId '
+                    'WHERE Rooms.RoomId = {} AND Times.TimeId = {} AND STR_TO_DATE("{}", "%d.%m.%Y") BETWEEN '
+                    'OrderDateStart AND OrderDateEnd'.format(abonement['RoomId'],
+                                                             abonement['TimeId'],
+                                                             datetime.date.strftime(datetime.date.today(),
+                                                                                    '%d.%m.%Y')))
+        room_curcapacity = cur.fetchone()
+        cur.execute('SELECT RoomCapacity, RoomName, Times.TimeName '
+                    'FROM Abonements '
+                    'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
+                    'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
+                    'WHERE AbonementId = {}'.format(abonement_id))
+        room = cur.fetchone()
+        if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
+            return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],
+                                                                        room['TimeName'].lower()))
+        # After checking, we need to insert new order row
+        cur.execute('INSERT INTO Orders (AbonementId, OrderDateStart, OrderDateEnd) '
+                    'VALUES ({}, CURDATE(), STR_TO_DATE("{}", "%d.%m.%Y"))'.format(abonement_id,
+                                                                                   datetime.date.strftime(
+                                                                                       datetime.date.today(),
+                                                                                       '%d.%m.%Y')))
+        con.commit()
+        # Collect information about sold abonement
+        cur.execute('SELECT RoomName, ServiceName, TimeName, AbonementPrice '
+                    'FROM Abonements '
+                    'INNER JOIN Rooms on Rooms.RoomId = Abonements.RoomId '
+                    'INNER JOIN Services on Services.ServiceId = Abonements.ServiceId '
+                    'INNER JOIN Times on Times.TimeId = Abonements.TimeId '
+                    'WHERE AbonementId = {}'.format(abonement_id))
+        row = cur.fetchone()
+        return (True, 'Разовое посещение "{} - {} - {}" на сумму {} рублей на {} успешно продано'.format(
+            row['RoomName'], row['ServiceName'], row['TimeName'], row['AbonementPrice'],
+            datetime.date.strftime(datetime.date.today(), '%d.%m.%Y')
+        ))
 
 
 # Deny an abonement
