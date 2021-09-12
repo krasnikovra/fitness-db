@@ -16,6 +16,10 @@
   <property name="windowTitle">
    <string>Загруженность залов</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../res/gym.png</normaloff>../../res/gym.png</iconset>
+  </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>

@@ -63,18 +63,16 @@ class AppSellAbonement(QtWidgets.QWidget):
             (is_ok, msg) = db_sells.db_sell_oneday(self.spin_box_value)
         else:
             (is_ok, msg) = db_sells.db_sell_abonement(self.spin_box_value, self.date)
+        msgbox = QtWidgets.QMessageBox()
         if not is_ok:
-            msgbox = QtWidgets.QMessageBox()
             msgbox.setIcon(QtWidgets.QMessageBox.Critical)
             msgbox.setWindowTitle('Ошибка')
-            msgbox.setText(msg)
-            msgbox.exec()
         else:
-            msgbox = QtWidgets.QMessageBox()
             msgbox.setIcon(QtWidgets.QMessageBox.Information)
             msgbox.setWindowTitle('Успех')
-            msgbox.setText(msg)
-            msgbox.exec()
+        msgbox.setText(msg)
+        msgbox.exec()
+
 
     def date_slot(self, qdate):
         self.date = '{:0>2}.{:0>2}.{}'.format(qdate.day(), qdate.month(), qdate.year())
