@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 from design.ui_app_deny_abonement import Ui_AppDenyAbonement
 import pymysql
 import db_sells

@@ -42,7 +42,7 @@ def db_sell_abonement(abonement_id, date_end):
                     'FROM Abonements '
                     'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
                     'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
-                    'WHERE AbonementId = {}'.format(abonement_id))
+                    'WHERE Abone02mentId = {}'.format(abonement_id))
         room = cur.fetchone()
         if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
             return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],

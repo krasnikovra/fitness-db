@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 from design.ui_app_rooms_capacity import Ui_AppRoomsCapacity
 import datetime
-import db_queries
+import db_rooms_queries
 import sys
 
 
@@ -14,7 +14,7 @@ class AppRoomsCapacity(QtWidgets.QWidget):
             self.ui.timesComboBox.itemText(self.time_id - 1).lower(),
             self.date
         ))
-        self.fill_table(db_queries.db_select_rooms_current_capacity(self.date, self.time_id))
+        self.fill_table(db_rooms_queries.db_select_rooms_current_capacity(self.date, self.time_id))
 
     def update_table_from_combo_box(self, index):
         self.time_id = index + 1
@@ -58,7 +58,7 @@ class AppRoomsCapacity(QtWidgets.QWidget):
             'утро',
             datetime.date.strftime(datetime.date.today(), '%d.%m.%Y')
         ))
-        room_rows = db_queries.db_select_rooms_current_capacity(
+        room_rows = db_rooms_queries.db_select_rooms_current_capacity(
             datetime.date.strftime(datetime.date.today(), '%d.%m.%Y'),
             1
         )
@@ -72,7 +72,7 @@ class AppRoomsCapacity(QtWidgets.QWidget):
         self.ui.table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         self.ui.table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.ui.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.fill_table(db_queries.db_select_rooms_current_capacity(
+        self.fill_table(db_rooms_queries.db_select_rooms_current_capacity(
             self.date, self.time_id
         ))
         self.ui.timesComboBox.currentIndexChanged.connect(self.update_table_from_combo_box)
