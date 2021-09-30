@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'design\ui_app_sell_abonement.ui'
+# Form implementation generated from reading ui file 'src\design\ui_app_sell_abonement.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -17,7 +17,7 @@ class Ui_AppSellAbonement(object):
         AppSellAbonement.setWindowModality(QtCore.Qt.ApplicationModal)
         AppSellAbonement.resize(800, 600)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("src\\design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         AppSellAbonement.setWindowIcon(icon)
         self.verticalLayoutWidget = QtWidgets.QWidget(AppSellAbonement)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 110, 781, 481))
@@ -40,14 +40,18 @@ class Ui_AppSellAbonement(object):
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
+        self.labelDate = QtWidgets.QLabel(self.gridLayoutWidget)
+        self.labelDate.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.labelDate.setObjectName("labelDate")
+        self.gridLayout.addWidget(self.labelDate, 1, 0, 1, 1)
+        self.sellButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.sellButton.setObjectName("sellButton")
+        self.gridLayout.addWidget(self.sellButton, 0, 3, 1, 1)
         self.abonementIdSpinBox = QtWidgets.QSpinBox(self.gridLayoutWidget)
         self.abonementIdSpinBox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.abonementIdSpinBox.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.abonementIdSpinBox.setObjectName("abonementIdSpinBox")
         self.gridLayout.addWidget(self.abonementIdSpinBox, 0, 1, 1, 1)
-        self.sellButton = QtWidgets.QPushButton(self.gridLayoutWidget)
-        self.sellButton.setObjectName("sellButton")
-        self.gridLayout.addWidget(self.sellButton, 0, 2, 1, 1)
         self.labelAbonement = QtWidgets.QLabel(self.gridLayoutWidget)
         self.labelAbonement.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.labelAbonement.setObjectName("labelAbonement")
@@ -56,13 +60,12 @@ class Ui_AppSellAbonement(object):
         self.dateEdit.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.dateEdit.setObjectName("dateEdit")
         self.gridLayout.addWidget(self.dateEdit, 1, 1, 1, 1)
+        self.checkSpaceButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.checkSpaceButton.setObjectName("checkSpaceButton")
+        self.gridLayout.addWidget(self.checkSpaceButton, 0, 2, 1, 1)
         self.oneDayCheckBox = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.oneDayCheckBox.setObjectName("oneDayCheckBox")
-        self.gridLayout.addWidget(self.oneDayCheckBox, 1, 2, 1, 1)
-        self.labelDate = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.labelDate.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.labelDate.setObjectName("labelDate")
-        self.gridLayout.addWidget(self.labelDate, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.oneDayCheckBox, 1, 2, 1, 2)
 
         self.retranslateUi(AppSellAbonement)
         QtCore.QMetaObject.connectSlotsByName(AppSellAbonement)
@@ -71,11 +74,12 @@ class Ui_AppSellAbonement(object):
         _translate = QtCore.QCoreApplication.translate
         AppSellAbonement.setWindowTitle(_translate("AppSellAbonement", "Продажа абонементов"))
         self.label.setText(_translate("AppSellAbonement", "Список абонементов"))
-        self.sellButton.setText(_translate("AppSellAbonement", "Продать"))
-        self.labelAbonement.setText(_translate("AppSellAbonement", "Id абонемента:"))
-        self.oneDayCheckBox.setText(_translate("AppSellAbonement", "Разовое посещение"))
         self.labelDate.setText(_translate("AppSellAbonement", "Дата окончания\n"
 "абонемента:"))
+        self.sellButton.setText(_translate("AppSellAbonement", "Продать"))
+        self.labelAbonement.setText(_translate("AppSellAbonement", "Id абонемента:"))
+        self.checkSpaceButton.setText(_translate("AppSellAbonement", "Проверить количество мест"))
+        self.oneDayCheckBox.setText(_translate("AppSellAbonement", "Разовое посещение"))
 
 
 if __name__ == "__main__":

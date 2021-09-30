@@ -56,7 +56,7 @@ class AppSellAbonement(QtWidgets.QWidget):
             self.ui.dateEdit.show()
             self.ui.labelDate.show()
 
-    def btn_slot(self):
+    def sell_btn_slot(self):
         is_ok = True
         msg = ''
         if self.check_box_state > 0:
@@ -73,6 +73,19 @@ class AppSellAbonement(QtWidgets.QWidget):
         msgbox.setText(msg)
         msgbox.exec()
 
+    def check_space_btn_slot(self):
+        is_ok = True
+        msg = ''
+        (is_ok, msg) = db_sells.db_check_for_free_space(self.spin_box_value)
+        msgbox = QtWidgets.QMessageBox()
+        if not is_ok:
+            msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+            msgbox.setWindowTitle('Ошибка')
+        else:
+            msgbox.setIcon(QtWidgets.QMessageBox.Information)
+            msgbox.setWindowTitle('Успех')
+        msgbox.setText(msg)
+        msgbox.exec()
 
     def date_slot(self, qdate):
         self.date = '{:0>2}.{:0>2}.{}'.format(qdate.day(), qdate.month(), qdate.year())
@@ -108,7 +121,8 @@ class AppSellAbonement(QtWidgets.QWidget):
         self.ui.oneDayCheckBox.stateChanged.connect(self.check_box_slot)
         self.ui.abonementIdSpinBox.valueChanged.connect(self.spin_box_slot)
         self.ui.dateEdit.dateChanged.connect(self.date_slot)
-        self.ui.sellButton.clicked.connect(self.btn_slot)
+        self.ui.sellButton.clicked.connect(self.sell_btn_slot)
+        self.ui.checkSpaceButton.clicked.connect(self.check_space_btn_slot)
 
 
 if __name__ == '__main__':

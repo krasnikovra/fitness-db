@@ -28,28 +28,13 @@ class AppFinancialReport(QtWidgets.QWidget):
             self.ui.dateEdit.setDisplayFormat("yyyy")
 
     def dateedit_slot(self, qdate):
-        if self.radio_btn_checked == 'day':
-            self.date = '{:0>2}.{:0>2}.{}'.format(qdate.day(), qdate.month(), qdate.year())
-        elif self.radio_btn_checked == 'month':
-            self.date = '{:0>2}.{}'.format(qdate.month(), qdate.year())
-        else:
-            self.date = '{}'.format(qdate.year())
+        self.date = '{:0>2}.{:0>2}.{}'.format(qdate.day(), qdate.month(), qdate.year())
 
-    # TODO: fix refill debug
     def fill_table(self, rows):
         if len(rows) == 0:
             self.ui.tableWidget.setRowCount(0)
             return
         self.ui.tableWidget.setRowCount(len(rows))
-        self.ui.tableWidget.setColumnCount(len(rows[0]) if len(rows[0]) > 0 else 0)
-        self.ui.tableWidget.setHorizontalHeaderLabels(
-            ['Id заказа', 'Id абонемента', 'Название зала', 'Название услуги',
-             'Дата покупки', 'Время', 'Количество дней', 'Стоимость']
-        )
-        self.ui.tableWidget.verticalHeader().hide()
-        for i in range(len(rows[0])):
-            self.ui.tableWidget.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
-        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(len(rows[0]) - 1, QtWidgets.QHeaderView.Stretch)
         rownum = 0
         for row in rows:
             colnum = 0
@@ -63,42 +48,56 @@ class AppFinancialReport(QtWidgets.QWidget):
                 self.ui.tableWidget.setItem(rownum, colnum, cellinfo)
                 colnum += 1
             rownum += 1
+        self.ui.tableWidget.update()
 
-    def fill_report(self, date, radio_btn_checked):
+    def fill_report(self):
         rows = ''
-        if radio_btn_checked == 'day':
-            rows = db_financies.db_financies_day(date)
-        elif radio_btn_checked == 'month':
-            rows = db_financies.db_financies_month(date)
-        elif radio_btn_checked == 'year':
-            rows = db_financies.db_financies_year(date)
+        if self.radio_btn_checked == 'day':
+            rows = db_financies.db_financies_day(self.date)
+        elif self.radio_btn_checked == 'month':
+            rows = db_financies.db_financies_month(self.date)
+        elif self.radio_btn_checked == 'year':
+            rows = db_financies.db_financies_year(self.date)
         self.fill_table(rows)
         # calculating sum
         sum = 0
         for row in rows:
             sum += row[-1]
         self.ui.summaryLabel.setText('<b>Итого: {}</b>'.format(sum))
-        self.ui.topLabel.setText('Финансовый отчет на {}'.format(date))
+        if self.radio_btn_checked == 'day':
+            self.ui.topLabel.setText('Финансовый отчет на {}'.format(self.date))
+        elif self.radio_btn_checked == 'month':
+            self.ui.topLabel.setText('Финансовый отчет на {}'.format(self.date[3:]))
+        else:
+            self.ui.topLabel.setText('Финансовый отчет на {}'.format(self.date[6:]))
+        if self.ui.topLabel.isHidden():
+            self.ui.topLabel.show()
 
     def btn_slot(self):
-        self.fill_report(self.date, self.radio_btn_checked)
+        self.fill_report()
 
     def __init__(self):
         super(AppFinancialReport, self).__init__()
         self.ui = Ui_AppFinancialReport()
         self.ui.setupUi(self)
-        size_policy = QtWidgets.QSizePolicy()
-        size_policy.setRetainSizeWhenHidden(True)
-        self.ui.topLabel.setSizePolicy(size_policy)
-        self.ui.topLabel.hide()
         self.ui.radioButtonDay.setChecked(True)
         self.ui.radioButtonDay.clicked.connect(self.radio_btn_day_slot)
         self.ui.radioButtonMonth.clicked.connect(self.radio_btn_month_slot)
         self.ui.radioButtonYear.clicked.connect(self.radio_btn_year_slot)
         self.ui.dateEdit.setMinimumDate(datetime.date(2010, 1, 1))
+        self.ui.dateEdit.setDate(datetime.date.today())
         self.ui.dateEdit.setMaximumDate(datetime.date.today())
         self.ui.dateEdit.dateChanged.connect(self.dateedit_slot)
         self.ui.getReportButton.clicked.connect(self.btn_slot)
+
+        columns = ['Id заказа', 'Id абонемента', 'Название зала', 'Название услуги',
+             'Дата покупки', 'Время', 'Количество дней', 'Стоимость']
+        self.ui.tableWidget.setColumnCount(len(columns))
+        self.ui.tableWidget.setHorizontalHeaderLabels(columns)
+        self.ui.tableWidget.verticalHeader().hide()
+        for i in range(len(columns)):
+            self.ui.tableWidget.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(len(columns) - 1, QtWidgets.QHeaderView.Stretch)
 
 
 if __name__ == '__main__':

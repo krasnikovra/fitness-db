@@ -1,4 +1,2 @@
-src/.idea
-src/__pycache__
-src/design/.idea
-src/design/__pycache__
+**.idea
+**/__pycache__

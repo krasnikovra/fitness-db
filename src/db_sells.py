@@ -2,6 +2,43 @@ import pymysql
 import datetime
 
 
+def db_check_for_free_space(abonement_id):
+    # Connect to the local MySQL 'Fitness' db
+    con = pymysql.connect(host='127.0.0.1',
+                          user='root',
+                          password='gpnb0b',
+                          db='Fitness',
+                          charset='utf8mb4',
+                          cursorclass=pymysql.cursors.DictCursor)
+
+    with con:
+        cur = con.cursor()
+        cur.execute('SELECT * FROM Abonements WHERE AbonementId = {}'.format(abonement_id))
+        abonement = cur.fetchone()
+        cur.execute('SELECT COUNT(*) '
+                    'FROM Orders '
+                    'INNER JOIN Abonements on Abonements.AbonementId = Orders.AbonementId '
+                    'INNER JOIN Rooms on Rooms.RoomId = Abonements.RoomId '
+                    'INNER JOIN Services on Services.ServiceId = Abonements.ServiceId '
+                    'INNER JOIN Times on Times.TimeId = Abonements.TimeId '
+                    'WHERE Rooms.RoomId = {} AND Times.TimeId = {} AND STR_TO_DATE("{}", "%d.%m.%Y") BETWEEN '
+                    'OrderDateStart AND OrderDateEnd'.format(abonement['RoomId'],
+                                                             abonement['TimeId'],
+                                                             datetime.date.strftime(datetime.date.today(), '%d.%m.%Y')))
+        room_curcapacity = cur.fetchone()
+        cur.execute('SELECT RoomCapacity, RoomName, Times.TimeName '
+                    'FROM Abonements '
+                    'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
+                    'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
+                    'WHERE AbonementId = {}'.format(abonement_id))
+        room = cur.fetchone()
+        if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
+            return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],
+                                                                    room['TimeName'].lower()))
+        return (True, 'Есть свободные места в зале "{}" на {}.'.format(room['RoomName'],
+                                                                   room['TimeName'].lower()))
+
+
 # Sell an abonement; date_end in format dd.mm.yyyy
 # Returns '' if ok and error message if error has occurred
 def db_sell_abonement(abonement_id, date_end):
@@ -24,33 +61,12 @@ def db_sell_abonement(abonement_id, date_end):
         if datetime.datetime.strptime(date_end, "%d.%m.%Y").date() < datetime.date.today():
             return (False, 'Указана неверная дата, невозможно продать абонемент в прошлое!')
         # Check for free spaces in room
-        cur.execute('SELECT * FROM Abonements WHERE AbonementId = {}'.format(abonement_id))
-        abonement = cur.fetchone()
-        cur.execute('SELECT COUNT(*) '
-                    'FROM Orders '
-                    'INNER JOIN Abonements on Abonements.AbonementId = Orders.AbonementId '
-                    'INNER JOIN Rooms on Rooms.RoomId = Abonements.RoomId '
-                    'INNER JOIN Services on Services.ServiceId = Abonements.ServiceId '
-                    'INNER JOIN Times on Times.TimeId = Abonements.TimeId '
-                    'WHERE Rooms.RoomId = {} AND Times.TimeId = {} AND STR_TO_DATE("{}", "%d.%m.%Y") BETWEEN '
-                    'OrderDateStart AND OrderDateEnd'.format(abonement['RoomId'],
-                                                             abonement['TimeId'],
-                                                             datetime.date.strftime(datetime.date.today(),
-                                                                                        '%d.%m.%Y')))
-        room_curcapacity = cur.fetchone()
-        cur.execute('SELECT RoomCapacity, RoomName, Times.TimeName '
-                    'FROM Abonements '
-                    'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
-                    'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
-                    'WHERE Abone02mentId = {}'.format(abonement_id))
-        room = cur.fetchone()
-        if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
-            return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],
-                                                                        room['TimeName'].lower()))
+        is_ok, msg = db_check_for_free_space(abonement_id)
+        if not is_ok:
+            return (False, msg)
         # After checking, we need to insert new order row
         cur.execute('INSERT INTO Orders (AbonementId, OrderDateStart, OrderDateEnd) '
-                    'VALUES ({}, CURDATE(), STR_TO_DATE("{}", "%d.%m.%Y"))'.format(abonement_id,
-                                                                                     date_end))
+                    'VALUES ({}, CURDATE(), STR_TO_DATE("{}", "%d.%m.%Y"))'.format(abonement_id, date_end))
         con.commit()
         # Collect information about sold abonement
         cur.execute('SELECT RoomName, ServiceName, TimeName, AbonementPrice '
@@ -82,29 +98,9 @@ def db_sell_oneday(abonement_id):
         if len(temp) == 0:
             return (False, 'Нет абонемента с указанным Id!')
         # Check for free spaces in room
-        cur.execute('SELECT * FROM Abonements WHERE AbonementId = {}'.format(abonement_id))
-        abonement = cur.fetchone()
-        cur.execute('SELECT COUNT(*) '
-                    'FROM Orders '
-                    'INNER JOIN Abonements on Abonements.AbonementId = Orders.AbonementId '
-                    'INNER JOIN Rooms on Rooms.RoomId = Abonements.RoomId '
-                    'INNER JOIN Services on Services.ServiceId = Abonements.ServiceId '
-                    'INNER JOIN Times on Times.TimeId = Abonements.TimeId '
-                    'WHERE Rooms.RoomId = {} AND Times.TimeId = {} AND STR_TO_DATE("{}", "%d.%m.%Y") BETWEEN '
-                    'OrderDateStart AND OrderDateEnd'.format(abonement['RoomId'],
-                                                             abonement['TimeId'],
-                                                             datetime.date.strftime(datetime.date.today(),
-                                                                                    '%d.%m.%Y')))
-        room_curcapacity = cur.fetchone()
-        cur.execute('SELECT RoomCapacity, RoomName, Times.TimeName '
-                    'FROM Abonements '
-                    'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
-                    'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
-                    'WHERE AbonementId = {}'.format(abonement_id))
-        room = cur.fetchone()
-        if room['RoomCapacity'] <= room_curcapacity['COUNT(*)']:
-            return (False, 'Мест в зале "{}" на {} не осталось!'.format(room['RoomName'],
-                                                                        room['TimeName'].lower()))
+        is_ok, msg = db_check_for_free_space(abonement_id)
+        if not is_ok:
+            return (False, msg)
         # After checking, we need to insert new order row
         cur.execute('INSERT INTO Orders (AbonementId, OrderDateStart, OrderDateEnd) '
                     'VALUES ({}, CURDATE(), STR_TO_DATE("{}", "%d.%m.%Y"))'.format(abonement_id,
