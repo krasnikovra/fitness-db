@@ -142,6 +142,8 @@ def db_deny_abonement(order_id):
         # Now we need to check if this order is a true abonement
         if temp['OrderDateStart'] == temp['OrderDateEnd']:
             return (False, 'Нельзя отказаться от разового посещения!')
+        if temp['OrderDateEnd'] < datetime.date.today():
+            return (False, 'Срок действия этого абонемента уже истек!')
         # Collect information about sold abonement
         cur.execute('SELECT RoomName, ServiceName, TimeName, AbonementPrice, OrderDateStart, OrderDateEnd '
                     'FROM Orders '

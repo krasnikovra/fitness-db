@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'src\design\ui_app_sell_abonement.ui'
+# Form implementation generated from reading ui file 'design\ui_app_sell_abonement.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -17,7 +17,7 @@ class Ui_AppSellAbonement(object):
         AppSellAbonement.setWindowModality(QtCore.Qt.ApplicationModal)
         AppSellAbonement.resize(800, 600)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("src\\design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         AppSellAbonement.setWindowIcon(icon)
         self.verticalLayoutWidget = QtWidgets.QWidget(AppSellAbonement)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 110, 781, 481))
@@ -35,7 +35,7 @@ class Ui_AppSellAbonement(object):
         self.table.setRowCount(0)
         self.verticalLayout.addWidget(self.table)
         self.gridLayoutWidget = QtWidgets.QWidget(AppSellAbonement)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(150, 10, 521, 91))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(90, 10, 631, 91))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)

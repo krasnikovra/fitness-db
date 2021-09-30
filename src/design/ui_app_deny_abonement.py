@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AppDenyAbonement(object):
     def setupUi(self, AppDenyAbonement):
         AppDenyAbonement.setObjectName("AppDenyAbonement")
+        AppDenyAbonement.setWindowModality(QtCore.Qt.ApplicationModal)
         AppDenyAbonement.resize(600, 100)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)

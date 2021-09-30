@@ -14,7 +14,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AppFinancialReport(object):
     def setupUi(self, AppFinancialReport):
         AppFinancialReport.setObjectName("AppFinancialReport")
+        AppFinancialReport.setWindowModality(QtCore.Qt.ApplicationModal)
         AppFinancialReport.resize(1200, 600)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("design\\../../res/gym.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        AppFinancialReport.setWindowIcon(icon)
         self.verticalLayoutWidget = QtWidgets.QWidget(AppFinancialReport)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 160, 1181, 431))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")

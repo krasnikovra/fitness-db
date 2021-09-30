@@ -91,7 +91,7 @@ class AppFinancialReport(QtWidgets.QWidget):
         self.ui.getReportButton.clicked.connect(self.btn_slot)
 
         columns = ['Id заказа', 'Id абонемента', 'Название зала', 'Название услуги',
-             'Дата покупки', 'Время', 'Количество дней', 'Стоимость']
+                   'Время', 'Дата покупки', 'Количество дней', 'Стоимость']
         self.ui.tableWidget.setColumnCount(len(columns))
         self.ui.tableWidget.setHorizontalHeaderLabels(columns)
         self.ui.tableWidget.verticalHeader().hide()
