@@ -1,8 +1,15 @@
 from PyQt5 import QtCore, QtWidgets
 from design.ui_app_rooms_capacity import Ui_AppRoomsCapacity
+from db_utils import db_connect
 import datetime
 import db_rooms_queries
 import sys
+
+
+def select_times(con):
+    cur = con.cursor()
+    cur.execute('SELECT * FROM Times')
+    return cur.fetchall()
 
 
 class AppRoomsCapacity(QtWidgets.QWidget):
@@ -14,7 +21,7 @@ class AppRoomsCapacity(QtWidgets.QWidget):
             self.ui.timesComboBox.itemText(self.time_id - 1).lower(),
             self.date
         ))
-        self.fill_table(db_rooms_queries.db_select_rooms_current_capacity(self.date, self.time_id))
+        self.fill_table(db_rooms_queries.db_select_rooms_current_capacity(self.con, self.date, self.time_id))
 
     def update_table_from_combo_box(self, index):
         self.time_id = index + 1
@@ -45,22 +52,25 @@ class AppRoomsCapacity(QtWidgets.QWidget):
             self.ui.table.setCellWidget(rownum, 2, progress)
             rownum += 1
 
-    def __init__(self):
+    def __init__(self, con):
         super(AppRoomsCapacity, self).__init__()
         self.ui = Ui_AppRoomsCapacity()
         self.ui.setupUi(self)
-        self.ui.timesComboBox.addItem('Утро')
-        self.ui.timesComboBox.addItem('Вечер')
+        self.con = con
+        times = select_times(con)
+        for time in times:
+            self.ui.timesComboBox.addItem(time[1])
         self.ui.dateEdit.setDate(datetime.date.today())
         self.ui.dateEdit.setMinimumDate(datetime.date.today())
         self.ui.dateEdit.setCalendarPopup(True)
         self.ui.label.setText('Загруженность залов по состоянию на {} {}'.format(
-            'утро',
+            times[0][1].lower(),
             datetime.date.strftime(datetime.date.today(), '%d.%m.%Y')
         ))
         room_rows = db_rooms_queries.db_select_rooms_current_capacity(
+            con,
             datetime.date.strftime(datetime.date.today(), '%d.%m.%Y'),
-            1
+            times[0][0]
         )
         self.ui.table.setRowCount(len(room_rows))
         self.ui.table.setColumnCount(len(room_rows[0]) - 1)
@@ -73,16 +83,17 @@ class AppRoomsCapacity(QtWidgets.QWidget):
         self.ui.table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.ui.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.fill_table(db_rooms_queries.db_select_rooms_current_capacity(
-            self.date, self.time_id
+            con, self.date, self.time_id
         ))
         self.ui.timesComboBox.currentIndexChanged.connect(self.update_table_from_combo_box)
         self.ui.dateEdit.dateChanged.connect(self.update_table_from_date_entry)
 
 
 if __name__ == '__main__':
+    con = db_connect()
     app = QtWidgets.QApplication([])
     app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    application = AppRoomsCapacity()
+    application = AppRoomsCapacity(con)
     application.show()
 
     sys.exit(app.exec())

@@ -1,33 +1,23 @@
 from PyQt5 import QtCore, QtWidgets
 from design.ui_app_sell_abonement import Ui_AppSellAbonement
-import pymysql
+from db_utils import db_connect
 import datetime
 import db_sells
 import sys
 
 
-def select_abonements_rows():
-    # Connect to the local MySQL 'Fitness' db
-    con = pymysql.connect(host='127.0.0.1',
-                          user='root',
-                          password='gpnb0b',
-                          db='Fitness',
-                          charset='utf8mb4')
-
-    with con:
-        cur = con.cursor()
-        cur.execute('SELECT AbonementId, RoomName, ServiceName, TimeName, AbonementPrice '
-                    'FROM Abonements '
-                    'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
-                    'INNER JOIN Services ON Services.ServiceId = Abonements.ServiceId '
-                    'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
-                    'ORDER BY AbonementId')
-        rows = cur.fetchall()
-        return rows
+def select_abonements_rows(con):
+    cur = con.cursor()
+    cur.execute('SELECT AbonementId, RoomName, ServiceName, TimeName, AbonementPrice '
+                'FROM Abonements '
+                'INNER JOIN Rooms ON Rooms.RoomId = Abonements.RoomId '
+                'INNER JOIN Services ON Services.ServiceId = Abonements.ServiceId '
+                'INNER JOIN Times ON Times.TimeId = Abonements.TimeId '
+                'ORDER BY AbonementId')
+    return cur.fetchall()
 
 
 class AppSellAbonement(QtWidgets.QWidget):
-    abonements = select_abonements_rows()
     check_box_state = 0
     date = datetime.date.strftime(datetime.date.today() + datetime.timedelta(days=1), '%d.%m.%Y')
     spin_box_value = 1
@@ -60,9 +50,9 @@ class AppSellAbonement(QtWidgets.QWidget):
         is_ok = True
         msg = ''
         if self.check_box_state > 0:
-            (is_ok, msg) = db_sells.db_sell_oneday(self.spin_box_value)
+            (is_ok, msg) = db_sells.db_sell_oneday(self.con, self.spin_box_value)
         else:
-            (is_ok, msg) = db_sells.db_sell_abonement(self.spin_box_value, self.date)
+            (is_ok, msg) = db_sells.db_sell_abonement(self.con, self.spin_box_value, self.date)
         msgbox = QtWidgets.QMessageBox()
         if not is_ok:
             msgbox.setIcon(QtWidgets.QMessageBox.Critical)
@@ -76,7 +66,7 @@ class AppSellAbonement(QtWidgets.QWidget):
     def check_space_btn_slot(self):
         is_ok = True
         msg = ''
-        (is_ok, msg) = db_sells.db_check_for_free_space(self.spin_box_value)
+        (is_ok, msg) = db_sells.db_check_for_free_space(self.con, self.spin_box_value)
         msgbox = QtWidgets.QMessageBox()
         if not is_ok:
             msgbox.setIcon(QtWidgets.QMessageBox.Critical)
@@ -93,10 +83,12 @@ class AppSellAbonement(QtWidgets.QWidget):
     def spin_box_slot(self, value):
         self.spin_box_value = value
 
-    def __init__(self):
+    def __init__(self, con):
         super(AppSellAbonement, self).__init__()
         self.ui = Ui_AppSellAbonement()
         self.ui.setupUi(self)
+        self.con = con
+        self.abonements = select_abonements_rows(con)
         size_policy = QtWidgets.QSizePolicy()
         size_policy.setRetainSizeWhenHidden(True)
         self.ui.labelDate.setSizePolicy(size_policy)
@@ -126,9 +118,10 @@ class AppSellAbonement(QtWidgets.QWidget):
 
 
 if __name__ == '__main__':
+    con = db_connect()
     app = QtWidgets.QApplication([])
     app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    application = AppSellAbonement()
+    application = AppSellAbonement(con)
     application.show()
 
     sys.exit(app.exec())

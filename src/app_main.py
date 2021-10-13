@@ -4,6 +4,7 @@ from app_sell_abonement import AppSellAbonement
 from app_deny_abonement import AppDenyAbonement
 from app_rooms_capacity import AppRoomsCapacity
 from app_financial_report import AppFinancialReport
+from db_utils import db_connect
 import sys
 
 
@@ -17,6 +18,7 @@ class AppMain(QtWidgets.QMainWindow):
         self.app_sell_abonement.show()
 
     def app_deny_abonement_btn_slot(self):
+        self.app_deny_abonement.update()
         self.app_deny_abonement.show()
 
     def app_rooms_capacity_btn_slot(self):
@@ -25,14 +27,14 @@ class AppMain(QtWidgets.QMainWindow):
     def app_financial_report_btn_slot(self):
         self.app_financial_report.show()
 
-    def __init__(self):
+    def __init__(self, con):
         super(AppMain, self).__init__()
         self.ui = Ui_AppMain()
         self.ui.setupUi(self)
-        self.app_sell_abonement = AppSellAbonement()
-        self.app_deny_abonement = AppDenyAbonement()
-        self.app_rooms_capacity = AppRoomsCapacity()
-        self.app_financial_report = AppFinancialReport()
+        self.app_sell_abonement = AppSellAbonement(con)
+        self.app_deny_abonement = AppDenyAbonement(con)
+        self.app_rooms_capacity = AppRoomsCapacity(con)
+        self.app_financial_report = AppFinancialReport(con)
         self.ui.appSellAbonementButton.clicked.connect(self.app_sell_abonement_btn_slot)
         self.ui.appDenyAbonementButton.clicked.connect(self.app_deny_abonement_btn_slot)
         self.ui.appRoomsCapacityButton.clicked.connect(self.app_rooms_capacity_btn_slot)
@@ -40,9 +42,10 @@ class AppMain(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
+    con = db_connect()
     app = QtWidgets.QApplication([])
     app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    application = AppMain()
+    application = AppMain(con)
     application.show()
 
     sys.exit(app.exec())

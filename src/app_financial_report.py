@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 from design.ui_app_financial_report import Ui_AppFinancialReport
+from db_utils import db_connect
 import db_financies
 import datetime
 import sys
@@ -53,11 +54,11 @@ class AppFinancialReport(QtWidgets.QWidget):
     def fill_report(self):
         rows = ''
         if self.radio_btn_checked == 'day':
-            rows = db_financies.db_financies_day(self.date)
+            rows = db_financies.db_financies_day(self.con, self.date)
         elif self.radio_btn_checked == 'month':
-            rows = db_financies.db_financies_month(self.date)
+            rows = db_financies.db_financies_month(self.con, self.date)
         elif self.radio_btn_checked == 'year':
-            rows = db_financies.db_financies_year(self.date)
+            rows = db_financies.db_financies_year(self.con, self.date)
         self.fill_table(rows)
         # calculating sum
         sum = 0
@@ -76,10 +77,11 @@ class AppFinancialReport(QtWidgets.QWidget):
     def btn_slot(self):
         self.fill_report()
 
-    def __init__(self):
+    def __init__(self, con):
         super(AppFinancialReport, self).__init__()
         self.ui = Ui_AppFinancialReport()
         self.ui.setupUi(self)
+        self.con = con
         self.ui.radioButtonDay.setChecked(True)
         self.ui.radioButtonDay.clicked.connect(self.radio_btn_day_slot)
         self.ui.radioButtonMonth.clicked.connect(self.radio_btn_month_slot)
@@ -89,7 +91,6 @@ class AppFinancialReport(QtWidgets.QWidget):
         self.ui.dateEdit.setMaximumDate(datetime.date.today())
         self.ui.dateEdit.dateChanged.connect(self.dateedit_slot)
         self.ui.getReportButton.clicked.connect(self.btn_slot)
-
         columns = ['Id заказа', 'Id абонемента', 'Название зала', 'Название услуги',
                    'Время', 'Дата покупки', 'Количество дней', 'Стоимость']
         self.ui.tableWidget.setColumnCount(len(columns))
@@ -101,9 +102,10 @@ class AppFinancialReport(QtWidgets.QWidget):
 
 
 if __name__ == '__main__':
+    con = db_connect()
     app = QtWidgets.QApplication([])
     app.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-    application = AppFinancialReport()
+    application = AppFinancialReport(con)
     application.show()
 
     sys.exit(app.exec())
