@@ -22,6 +22,7 @@ class AppMain(QtWidgets.QMainWindow):
         self.app_deny_abonement.show()
 
     def app_rooms_capacity_btn_slot(self):
+        self.app_rooms_capacity.update_table()
         self.app_rooms_capacity.show()
 
     def app_financial_report_btn_slot(self):
